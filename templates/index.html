@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Ice Butcher Assistant</title>
+    <style>
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+}
+
+#chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 500px;
+    height: 600px;
+    background: #f0f7ff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+#chat-header {
+    background: #fff;
+    color: #1a1a1a;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e7eb;
+    cursor: pointer;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.header-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #f0f7ff;
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 80%;
+}
+
+.bot-message {
+    align-self: flex-start;
+}
+
+.user-message {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.message .icon {
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.message-text {
+    background: #fff;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.bot-message .message-text {
+    border-top-left-radius: 4px;
+}
+
+.user-message .message-text {
+    background: #6082a6;
+    color: white;
+    border-top-right-radius: 4px;
+}
+
+.spiral-loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007AFF;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#chat-input-container {
+    padding: 16px;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border-radius: 24px;
+    padding: 8px 16px;
+}
+
+#user-input {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 8px 0;
+    font-size: 14px;
+    outline: none;
+}
+
+#send-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #007AFF;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.send-icon {
+    width: 20px;
+    height: 20px;
+}
+
+#chatbot-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease-in-out;
+}
+
+#chatbot-button:hover {
+    transform: scale(1.05);
+}
+
+#chatbot-button img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+#image-upload {
+    position: absolute;
+    bottom: 85px;
+    right: 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px;
+    display: none;
+}
+
+.upload-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #007AFF;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.upload-icon {
+    width: 20px;
+    height: 20px;
+}
+
+#image-upload {
+    display: none;
+}
+
+#image-preview-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.preview-image {
+    max-width: 60px;
+    max-height: 60px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    #chatbot-container {
+        width: 100%;
+        height: 100%;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+
+    #chatbot-button {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+    }
+
+    #chatbot-button img {
+        width: 35px;
+        height: 35px;
+    }
+
+    #chat-header {
+        padding: 10px;
+    }
+
+    .header-title {
+        font-size: 14px;
+    }
+
+    #chat-messages {
+        padding: 12px;
+    }
+
+    .message .icon {
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+    }
+
+    .message-text {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    #chat-input-container {
+        padding: 12px;
+    }
+
+    .input-wrapper {
+        padding: 6px 12px;
+    }
+
+    #user-input {
+        font-size: 12px;
+    }
+
+    #send-btn {
+        padding: 6px;
+    }
+
+    .send-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    #image-upload {
+        bottom: 65px;
+    }
+}
+
+/* Very small screens like mobile portrait */
+@media (max-width: 480px) {
+    #chatbot-container {
+        width: 100%;
+        height: 100%;
+        bottom: 0;
+        right: 0;
+    }
+
+    #chatbot-button {
+        width: 45px;
+        height: 45px;
+    }
+
+    #chatbot-button img {
+        width: 30px;
+        height: 30px;
+    }
+
+    #chat-header {
+        padding: 8px;
+    }
+
+    .header-title {
+        font-size: 12px;
+    }
+
+    #chat-messages {
+        padding: 8px;
+    }
+
+    .message .icon {
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+    }
+
+    .message-text {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    #chat-input-container {
+        padding: 10px;
+    }
+
+    .input-wrapper {
+        padding: 4px 8px;
+    }
+
+    #user-input {
+        font-size: 12px;
+    }
+
+    #send-btn {
+        padding: 4px;
+    }
+
+    .send-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    #image-upload {
+        bottom: 45px;
+    }
+}
+#close-btn {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#close-btn:hover {
+    color: #ff0000;
+}
+
+.chat-image {
+    max-width: 300px;  /* Adjust the size as needed */
+    max-height: 300px; /* Adjust the size as needed */
+    width: auto;
+    height: auto;
+    object-fit: contain; /* Ensures the image is scaled properly without distortion */
+}
+.chat-image {
+    transition: transform 0.3s ease-in-out; /* Smooth transition */
+}
+
+.chat-image:hover {
+    transform: scale(1.1); /* Scale the image to 1.1 times its size */
+}
+
+.bot-message .message-text {
+
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    background-color: #f1f1f1; /* Optional styling */
+    padding: 8px 12px;
+    border-radius: 8px;
+    width: 80%;
+}
+
+@keyframes fadeInResponse {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bot-message .message-text {
+    animation: fadeInResponse 0.5s ease-out;
+}
+
+
+    </style>
+</head>
+<body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+
+<!-- Chatbot Button -->
+<button id="chatbot-button" onclick="toggleChatbot()">
+    <img src="https://firebasestorage.googleapis.com/v0/b/logo-d7556.appspot.com/o/iceblutcher.png?alt=media&token=8f8f402b-642f-4804-831f-77f445b1e557" alt="Ice Engraving Logo">
+</button>
+
+<!-- Chatbot Container -->
+<!-- Chatbot Container -->
+<div id="chatbot-container">
+    <div id="chat-header">
+
+        
+        <div class="header-content">
+            <img src="https://firebasestorage.googleapis.com/v0/b/logo-d7556.appspot.com/o/iceblutcher.png?alt=media&token=8f8f402b-642f-4804-831f-77f445b1e557" alt="Ice Butcher Logo" class="header-logo">
+            <span class="header-title">Ice Butcher Assistant</span>
+        </div>
+        
+        <button id="close-btn" onclick="toggleChatbot()" aria-label="Close Chatbot">
+            &times;
+        </button>
+
+        
+    </div>
+    
+    
+    <div id="chat-messages"></div>
+    <div id="chat-input-container">
+        <div class="input-wrapper">
+
+            <input type="text" id="user-input" placeholder="Ask any questions...">
+        
+            <label for="image-upload" class="upload-btn">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7m4 2v4m0 0l-2-2m2 2l2-2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </label>
+            <input type="file" id="image-upload" accept="image/*" onchange="previewImage()" />
+            <div id="image-preview-container"></div>
+            
+            <button id="send-btn" onclick="sendMessage()">
+                <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+</div>
+<script>
+document.getElementById("image-upload").value = "";
+document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();  // Optional: prevents form submission if inside a form
+            sendMessage();           // Trigger sendMessage() on Enter key press
+        }
+    });
+function previewImage() {
+    var imageUpload = document.getElementById("image-upload").files[0];
+    var previewContainer = document.getElementById("image-preview-container");
+    
+    // Clear previous preview
+    previewContainer.innerHTML = "";
+
+    if (imageUpload) {
+        var imgPreview = document.createElement("img");
+        imgPreview.classList.add("preview-image");
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            imgPreview.src = e.target.result;
+        };
+        reader.readAsDataURL(imageUpload);
+
+        previewContainer.appendChild(imgPreview);
+    }
+}
+
+function toggleChatbot() {
+    var chatbot = document.getElementById("chatbot-container");
+    var button = document.getElementById("chatbot-button");
+    
+    if (chatbot.style.display === "none" || !chatbot.style.display) {
+        chatbot.style.display = "flex";
+        button.style.display = "none";
+    } else {
+        chatbot.style.display = "none";
+        button.style.display = "flex";
+    }
+}
+
+function formatResponse(rawResponse) {
+    // Convert Markdown image syntax ![alt text](URL) to an <img> tag
+    rawResponse = rawResponse.replace(/!\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, (match, altText, imageUrl) => {
+        return `<div style="text-align: center; margin-top: 20px;">
+            <img src="${imageUrl}" alt="${altText}" style="max-width: 100%; height: auto; border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+        </div>`;
+    });
+    // Bold text: **text**
+    rawResponse = rawResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Italic text: *text* (only if NOT part of an image)
+    rawResponse = rawResponse.replace(/(?<!\!)\*(.*?)\*/g, '<em>$1</em>');
+
+    // Italicize text inside square brackets: [text] → <em>text</em>
+    rawResponse = rawResponse.replace(/\[(.*?)\]/g, '<em>$1</em>');
+
+    // Headers: # text, ## text, etc.
+    rawResponse = rawResponse.replace(/^(#{1,6})\s*(.*?)$/gm, (match, hashes, headerText) => {
+        const level = hashes.length;
+        return `<h${level}>${headerText}</h${level}>`;
+    });
+
+    // Code blocks: ```code```
+    rawResponse = rawResponse.replace(/```(.*?)```/gs, '<pre>$1</pre>');
+
+    // Inline code: `code`
+    rawResponse = rawResponse.replace(/`(.*?)`/g, '<code>$1</code>');
+
+    // Convert other URLs to clickable links (excluding images)
+    rawResponse = rawResponse.replace(/(https?:\/\/[^\s<>")]+)/g, (match) => {
+        if (!/\.(jpg|jpeg|png)$/i.test(match)) {
+            return `<a href="${match}" target="_blank">${match}</a>`;
+        }
+        return match;
+    });
+
+    return rawResponse;
+}
+
+function sendMessage() {
+    var userInput = document.getElementById("user-input").value;
+    var imageUpload = document.getElementById("image-upload").files[0];
+    var chatMessages = document.getElementById("chat-messages");
+
+    // Check for empty user input or image
+    if (!userInput && !imageUpload) {
+        alert("Please enter a message or upload an image.");
+        return;
+    }
+
+    // Display user's message
+    var userMessageDiv = document.createElement("div");
+    userMessageDiv.classList.add("message", "user-message");
+
+    var userIcon = document.createElement("span");
+    userIcon.classList.add("icon");
+
+    var userImg = document.createElement("img");
+    userImg.src = "static/user.png"; // Replace with your actual image path or URL
+    userImg.alt = "User Icon";
+    userImg.style.width = "24px";
+    userImg.style.height = "24px";
+
+    userIcon.appendChild(userImg);
+
+    var userMessageText = document.createElement("div");
+    userMessageText.classList.add("message-text");
+    userMessageText.textContent = userInput;
+
+    userMessageDiv.appendChild(userIcon);
+    userMessageDiv.appendChild(userMessageText);
+
+    // Display selected image (if any)
+    if (imageUpload) {
+        var userImage = document.createElement("img");
+        userImage.classList.add("chat-image");
+        userImage.file = imageUpload;
+
+        var reader = new FileReader();
+        reader.onload = (function(img) {
+            return function(e) {
+                img.src = e.target.result;
+            };
+        })(userImage);
+
+        reader.readAsDataURL(imageUpload);
+        userMessageDiv.appendChild(userImage);
+    }
+
+    chatMessages.appendChild(userMessageDiv);
+    // Remove image preview after sending
+    document.getElementById("image-preview-container").innerHTML = "";
+    document.getElementById("image-upload").value = "";
+
+    // Display bot message with loader
+    var botMessageDiv = document.createElement("div");
+    botMessageDiv.classList.add("message", "bot-message");
+
+    var botIcon = document.createElement("span");
+    botIcon.classList.add("icon");
+
+    var botImg = document.createElement("img");
+    botImg.src = "https://firebasestorage.googleapis.com/v0/b/logo-d7556.appspot.com/o/iceblutcher.png?alt=media&token=8f8f402b-642f-4804-831f-77f445b1e557";
+    botImg.alt = "Bot Icon";
+    botImg.style.width = "24px";
+    botImg.style.height = "24px";
+
+    botIcon.appendChild(botImg);
+
+    var botMessageText = document.createElement("div");
+    botMessageText.classList.add("message-text");
+
+    var spiralLoader = document.createElement("div");
+    spiralLoader.classList.add("spiral-loader");
+
+    botMessageText.appendChild(spiralLoader);
+    botMessageDiv.appendChild(botIcon);
+    botMessageDiv.appendChild(botMessageText);
+    chatMessages.appendChild(botMessageDiv);
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    var formData = new FormData();
+    formData.append("user_input", userInput);
+    if (imageUpload) {
+        formData.append("image", imageUpload);
+    }
+
+    fetch("/chatbot", {
+    method: "POST",
+    body: formData
+})
+.then(response => response.json())
+.then(data => {
+    // Remove loader
+    botMessageText.removeChild(spiralLoader);
+
+    if (data.response.includes("https://theicebutcher.com/request/")) {
+        // Create a clickable image linked to the URL
+        botMessageText.innerHTML = ""; // Clear existing text
+        var link = document.createElement("a");
+        link.href = "https://theicebutcher.com/request/";
+        link.target = "_blank";
+
+        var img = document.createElement("img");
+        img.src = "/static/img.PNG"; // Replace with the correct image URL
+        img.classList.add("chat-image");
+
+        img.style.maxWidth = "200px"; 
+        img.style.borderRadius = "12px";
+        img.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+        img.style.transition = "transform 0.2s ease-in-out";
+
+        link.appendChild(img);
+        botMessageText.appendChild(link);
+    } else {
+        // Show regular text response
+        const formattedResponse = formatResponse(data.response);
+        botMessageText.innerHTML = formattedResponse || "Sorry, I couldn't understand your request.";
+    }
+
+    // Handle image response if provided
+    if (data.image_url) {
+        var img = document.createElement("img");
+        img.src = data.image_url;
+        img.classList.add("chat-image");
+        botMessageText.appendChild(img);
+    }
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+})
+.catch(error => {
+    console.error("Error:", error);
+    botMessageText.removeChild(spiralLoader);
+    botMessageText.textContent = "Sorry, there was an error processing your request.";
+})
+
+   
+    .then(response => response.json())
+    .then(data => {
+        // Remove loader and display bot response
+        botMessageText.removeChild(spiralLoader);
+
+        const formattedResponse = formatResponse(data.response);
+        botMessageText.innerHTML = formattedResponse || "Sorry, I couldn't understand your request.";
+
+        botMessageText.classList.add("fade-in-response");
+
+        // Handle image response if provided
+        if (data.image_url) {
+            var img = document.createElement("img");
+            img.src = data.image_url;
+            img.classList.add("chat-image");
+            botMessageText.appendChild(img);
+
+            document.getElementById("image-upload").value = "";
+        }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        botMessageText.removeChild(spiralLoader);
+        botMessageText.textContent = "Sorry, there was an error processing your request.";
+    });
+
+    document.getElementById("user-input").value = "";
+}
+
+// Add Enter key support
+document.getElementById("user-input").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+});
+</script>
+
+</body>
+</html>
