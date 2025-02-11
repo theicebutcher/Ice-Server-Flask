@@ -77,7 +77,7 @@ def find_top_matches(user_input, data):
 
     return sorted_matches  # Returns top 100 matches
 
-
+conversation_history = []
 @app.route("/chatbot", methods=["POST"])
 def chatbot():
     user_input = request.form.get("user_input", "").strip().lower()
@@ -87,7 +87,7 @@ def chatbot():
                 # Load image data and find top matches
         image_data = load_faq_data()
         sorted_matches = find_top_matches(user_input, image_data)[:100]  # Get only the top 10 matches
-        print(json.dumps(sorted_matches, indent=2, ensure_ascii=False))
+        # print(json.dumps(sorted_matches, indent=2, ensure_ascii=False))
 
         # Create the custom prompt with matched results
         custom_prompt = f"""
@@ -99,9 +99,16 @@ def chatbot():
         FAQ Data:
         {json.dumps(faq_data, indent=2, ensure_ascii=False)}
 
-        Standard Sculptures (images urls of the sculptures, use these when user asks for a sculpture image):
+        Standard Sculptures (images urls of the sculptures, use these when user asks for a sculpture image), [only utilize these urls and do create your own]:
         {json.dumps(sorted_matches, indent=2, ensure_ascii=False)}
+
+        Message to show along with the images response:
+        this is the Rendering of what we have done for other clients, we can also customize it to your event theme and logo, So! you want like this? (change your tone accordingly)
+
+
         """
+        conversation_text = "\n".join([f"User: {entry['user']}\nAI: {entry['ai']}" for entry in conversation_history])
+        full_prompt = f"{custom_prompt}\n{conversation_text}\nUser: {user_input}\nAI:"
 
 
         # If there's an uploaded file (image)
@@ -163,15 +170,15 @@ def chatbot():
         
         # Handle other chatbot input
         else:
-            prompt_with_custom = f"{custom_prompt}\n{user_input}"
+            prompt_with_custom = f"{full_prompt}\n{user_input}"
             completion = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[{"role": "user", "content": prompt_with_custom}]
             )
             gpt_response = completion.choices[0].message.content
+            conversation_history.append({"user": user_input, "ai": gpt_response})
             return jsonify({"response": gpt_response})
-
-
+        
 
 
         # Generate image with DALL-E 3
