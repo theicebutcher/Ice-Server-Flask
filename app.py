@@ -117,8 +117,7 @@ def chatbot():
             uploaded_file.save(image_path)
             
             instruction_text = """
-            Describe the geometrical features of this image for an ice engraving.
-            The engraving should be a 2D carving on a 5-inch thick ice block.
+            Describe the geometrical features of this image for an ice Sculpture.
             The ice should have a natural texture with light refraction.
             """
 
@@ -139,10 +138,17 @@ def chatbot():
                 return jsonify({"image_url": "img.PNG"}) 
 
             dalle_prompt = f"""
-            Create an image of an ice engraving.
-            The engraving should be a 2D carving on a 5-inch thick ice block.
+            Create an image of an ice Sculpture.
+            The Sculpture should be a carving on a thick ice block.
             The ice should have a natural texture with light refraction.
             {gpt_response}
+
+            The ice Sculpture should appear carved from genuine translucent ice, with a natural, slightly imperfect finish.
+            Place the Sculpture on a wooden table with a black background for contrast.
+            Avoid intricate patterns, sharp edges, or overly fine details, it should be very basic as possible.
+            Focus on natural ice textures, slight frost buildup, and subtle light refraction.
+            The image should resemble a high-quality photograph taken with a professional DSLR camera, capturing the essence of an authentic, handcrafted ice Sculpture.
+            The final image will only include the ice sculpture .
             """
             if "https://theicebutcher.com/request/" in gpt_response:
                 return jsonify({"image_url": "img.PNG"}) 
@@ -150,18 +156,18 @@ def chatbot():
         # If the user input contains "generate", pass the prompt to DALL·E
         elif user_input.startswith("generate"):
             dalle_prompt = f"""
-            Create images of ice Engraving.
+            Create images of ice Sculpture.
             Every image should emphasize natural ice .
             Avoid adding too much details, keep it as simple as possible.
             
             {user_input}
-            IMPORTANT: - The Ice Engraving primarily focuses on detailed carvings on the flat peace of ice block with 5 inches thick ice and around 4 feet tall and 5 feet wide.
+            IMPORTANT: - The Ice Sculpture primarily focuses on detailed Sculpture.
 
-            The ice engraving should appear carved from genuine translucent ice, with a natural, slightly imperfect finish.
-            Place the engraving on a wooden table with a black background for contrast.
+            The ice Sculpture should appear carved from genuine translucent ice, with a natural, slightly imperfect finish.
+            Place the Sculpture on a wooden table with a black background for contrast.
             Avoid intricate patterns, sharp edges, or overly fine details, it should be very basic as possible.
             Focus on natural ice textures, slight frost buildup, and subtle light refraction.
-            The image should resemble a high-quality photograph taken with a professional DSLR camera, capturing the essence of an authentic, handcrafted ice engraving.
+            The image should resemble a high-quality photograph taken with a professional DSLR camera, capturing the essence of an authentic, handcrafted ice Sculpture.
             The final image will only include the ice engraved sculpture , no human should be present in the image.
             
 
