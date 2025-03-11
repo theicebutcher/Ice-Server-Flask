@@ -42,9 +42,15 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
+
+# Global conversation history with a welcome message
+conversation_history = [{"user": "", "ai": "Welcome to Ice Butcher! How can I assist you today?  If you have any questions about ice sculptures or our services, feel free to ask.🧊"}]
+
+
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html")
+    # Render the template and pass the initial conversation history
+    return render_template("index.html", conversation_history=conversation_history)
 
 # Load Images data
 import json
@@ -80,6 +86,10 @@ def find_top_matches(user_input, data):
 conversation_history = []
 @app.route("/chatbot", methods=["POST"])
 def chatbot():
+    
+    # Define a list of keywords that should trigger DALL·E image generation
+    image_generation_keywords = ["generate", "create", "make", "design", "draw", "build", "craft" , "imagine",  "sketch", "construct","sculpt" ]
+
     user_input = request.form.get("user_input", "").strip().lower()
     uploaded_file = request.files.get("image")
 
@@ -105,7 +115,8 @@ def chatbot():
         Message to show along with the images response:
         this is the Rendering of what we have done for other clients, we can also customize it to your event theme and logo, So! you want like this? (change your tone accordingly)
 
-
+         - Users can only create ice sculptures in this chatbot if their message starts with one of the following words: 
+        "generate", "create", "make", "design", "draw", "build", "craft", "imagine", "sketch", "construct", "sculpt".
         """
         conversation_text = "\n".join([f"User: {entry['user']}\nAI: {entry['ai']}" for entry in conversation_history])
         full_prompt = f"{custom_prompt}\n{conversation_text}\nUser: {user_input}\nAI:"
@@ -152,9 +163,9 @@ def chatbot():
             """
             if "https://theicebutcher.com/request/" in gpt_response:
                 return jsonify({"image_url": "img.PNG"}) 
-
+        
         # If the user input contains "generate", pass the prompt to DALL·E
-        elif user_input.startswith("generate"):
+        elif any(user_input.startswith(keyword) for keyword in image_generation_keywords):
             dalle_prompt = f"""
             Create images of ice Sculpture.
             Every image should emphasize natural ice .
@@ -169,7 +180,7 @@ def chatbot():
             Focus on natural ice textures, slight frost buildup, and subtle light refraction.
             The image should resemble a high-quality photograph taken with a professional DSLR camera, capturing the essence of an authentic, handcrafted ice Sculpture.
             The final image will only include the ice engraved sculpture , no human should be present in the image.
-            
+            IMPORTANT: Do not include any tiny or overly intricate designs that are not feasible with real ice.
 
       
             """
