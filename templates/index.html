@@ -511,11 +511,47 @@ function previewImage() {
 function toggleChatbot() {
     var chatbot = document.getElementById("chatbot-container");
     var button = document.getElementById("chatbot-button");
-    
+    var chatMessages = document.getElementById("chat-messages");
+
     if (chatbot.style.display === "none" || !chatbot.style.display) {
+        // Show chatbot
         chatbot.style.display = "flex";
         button.style.display = "none";
+
+        // Check if welcome message already exists
+        var welcomeMessageExists = Array.from(chatMessages.children).some(child => {
+            return child.querySelector(".message-text")?.textContent.includes("Welcome to Ice Butcher");
+        });
+
+        // Display welcome message only if it doesn't already exist
+        if (!welcomeMessageExists) {
+            var welcomeMessageDiv = document.createElement("div");
+            welcomeMessageDiv.classList.add("message", "bot-message");
+
+            var botIcon = document.createElement("span");
+            botIcon.classList.add("icon");
+
+            var botImg = document.createElement("img");
+            botImg.src = "https://firebasestorage.googleapis.com/v0/b/logo-d7556.appspot.com/o/iceblutcher.png?alt=media&token=8f8f402b-642f-4804-831f-77f445b1e557";
+            botImg.alt = "Bot Icon";
+            botImg.style.width = "24px";
+            botImg.style.height = "24px";
+
+            botIcon.appendChild(botImg);
+
+            var welcomeMessageText = document.createElement("div");
+            welcomeMessageText.classList.add("message-text");
+            welcomeMessageText.innerHTML = "Welcome to Ice Butcher! How can I assist you today? If you have any questions about ice sculptures or our services, feel free to ask. 🧊";
+
+            welcomeMessageDiv.appendChild(botIcon);
+            welcomeMessageDiv.appendChild(welcomeMessageText);
+            chatMessages.appendChild(welcomeMessageDiv);
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     } else {
+        // Hide chatbot
         chatbot.style.display = "none";
         button.style.display = "flex";
     }
