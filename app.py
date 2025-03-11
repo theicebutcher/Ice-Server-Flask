@@ -153,13 +153,18 @@ def chatbot():
             The Sculpture should be a carving on a thick ice block.
             The ice should have a natural texture with light refraction.
             {gpt_response}
-
+            
             The ice Sculpture should appear carved from genuine translucent ice, with a natural, slightly imperfect finish.
             Place the Sculpture on a wooden table with a black background for contrast.
             Avoid intricate patterns, sharp edges, or overly fine details, it should be very basic as possible.
             Focus on natural ice textures, slight frost buildup, and subtle light refraction.
             The image should resemble a high-quality photograph taken with a professional DSLR camera, capturing the essence of an authentic, handcrafted ice Sculpture.
             The final image will only include the ice sculpture .
+            
+            IMPORTANT: 
+            - Only provide realistic designs that are possible to make with real ice.
+            - Avoid any tiny or overly intricate designs that are not feasible for actual ice carving.
+            
             """
             if "https://theicebutcher.com/request/" in gpt_response:
                 return jsonify({"image_url": "img.PNG"}) 
@@ -173,14 +178,14 @@ def chatbot():
             
             {user_input}
             IMPORTANT: - The Ice Sculpture primarily focuses on detailed Sculpture.
-
+            Only provide realistic designs that are possible to make with real ice.
             The ice Sculpture should appear carved from genuine translucent ice, with a natural, slightly imperfect finish.
             Place the Sculpture on a wooden table with a black background for contrast.
             Avoid intricate patterns, sharp edges, or overly fine details, it should be very basic as possible.
             Focus on natural ice textures, slight frost buildup, and subtle light refraction.
             The image should resemble a high-quality photograph taken with a professional DSLR camera, capturing the essence of an authentic, handcrafted ice Sculpture.
             The final image will only include the ice engraved sculpture , no human should be present in the image.
-            IMPORTANT: Do not include any tiny or overly intricate designs that are not feasible with real ice.
+            Do not include any tiny or overly intricate designs that are not feasible with real ice.
 
       
             """
